@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1F2A44">
+<title>Scheda — Anthony</title>
+
+<!-- iOS PWA meta tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scheda">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Apple touch icon -->
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+
+<!-- Favicon + Android icons -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --navy: #1F2A44;
+    --navy-2: #2C3A5C;
+    --orange: #E07A3C;
+    --orange-dim: #F0A06C;
+    --light: #F4F5F8;
+    --mid: #D8DCE5;
+    --gray: #6B7280;
+    --text: #1F2A44;
+    --success: #3B7A57;
+    --danger: #B83A2A;
+    --bg: #FAFBFC;
+    --white: #FFFFFF;
+    --shadow: 0 1px 3px rgba(31,42,68,0.08), 0 1px 2px rgba(31,42,68,0.04);
+    --shadow-lg: 0 4px 16px rgba(31,42,68,0.12);
+    --radius: 10px;
+  }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ HEADER ============ */
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow);
+  }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .title { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
+  .session-date {
+    font-size: 12px;
+    color: var(--orange-dim);
+    margin-top: 2px;
+  }
+  .session-timer {
+    background: var(--orange);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* ============ TABS ============ */
+  .tabs {
+    background: var(--white);
+    border-bottom: 1px solid var(--mid);
+    position: sticky;
+    top: 52px;
+    z-index: 40;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs-inner {
+    display: flex;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 8px;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    color: var(--gray);
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+  .tab .count {
+    background: var(--mid);
+    color: var(--gray);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .tab.active .count { background: var(--orange); color: var(--white); }
+  .tab.completed .count { background: var(--success); color: var(--white); }
+
+  /* ============ MAIN ============ */
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px 12px 120px;
+  }
+
+  .session-header {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    border-left: 4px solid var(--orange);
+    box-shadow: var(--shadow);
+  }
+  .session-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .session-header .sub {
+    font-size: 13px;
+    color: var(--gray);
+  }
+
+  /* ============ EXERCISE CARD ============ */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--mid);
+  }
+  .card.done {
+    border-color: var(--success);
+    background: #F4FAF6;
+  }
+  .card.done .card-head {
+    background: linear-gradient(to right, #E5F0E8 0%, var(--white) 100%);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .card-figure {
+    width: 64px;
+    height: 64px;
+    background: var(--light);
+    border-radius: 8px;
+    flex-shrink: 0;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-figure svg { width: 100%; height: 100%; }
+  .card-head-text { flex: 1; min-width: 0; }
+  .card-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--orange);
+    margin-bottom: 2px;
+  }
+  .card-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.25;
+  }
+  .card-summary {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 3px;
+  }
+  .card-progress {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--light);
+    border-radius: 18px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--gray);
+  }
+  .card-progress.done {
+    background: var(--success);
+    color: var(--white);
+  }
+  .card-progress.partial {
+    background: var(--orange);
+    color: var(--white);
+  }
+
+  .card-body {
+    display: none;
+    padding: 0 14px 14px;
+    border-top: 1px solid var(--mid);
+  }
+  .card.open .card-body { display: block; }
+  .card.open .card-head { padding-bottom: 14px; }
+
+  /* ============ EXECUTION (collapsible) ============ */
+  .exec {
+    background: var(--light);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .exec details summary {
+    font-weight: 700;
+    color: var(--navy);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .exec details summary::-webkit-details-marker { display: none; }
+  .exec details summary::after {
+    content: "▾";
+    font-size: 14px;
+    color: var(--gray);
+    transition: transform 0.15s;
+  }
+  .exec details[open] summary::after { transform: rotate(180deg); }
+  .exec details[open] summary { margin-bottom: 8px; }
+  .exec ul { padding-left: 18px; margin: 6px 0; }
+  .exec ul li { margin-bottom: 4px; }
+  .exec .cues-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--orange);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+
+  /* ============ SETS TABLE ============ */
+  .set-row {
+    display: grid;
+    grid-template-columns: 36px 1fr 1fr 56px auto;
+    gap: 6px;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--mid);
+  }
+  .set-row.done { background: #EEF7F0; }
+  .set-row.last { border-bottom: none; }
+
+  .set-num {
+    font-weight: 700;
+    text-align: center;
+    font-size: 14px;
+    color: var(--gray);
+    background: var(--light);
+    border-radius: 4px;
+    padding: 6px 0;
+  }
+  .set-row.done .set-num { background: var(--success); color: var(--white); }
+
+  .set-field {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .set-field label {
+    font-size: 9px;
+    color: var(--gray);
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .set-field input {
+    width: 100%;
+    border: 1px solid var(--mid);
+    background: var(--white);
+    border-radius: 6px;
+    padding: 8px 6px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--navy);
+    font-family: inherit;
+    -moz-appearance: textfield;
+  }
+  .set-field input:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 2px rgba(224,122,60,0.18);
+  }
+  .set-field input::-webkit-outer-spin-button,
+  .set-field input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .set-field .target {
+    font-size: 9px;
+    color: var(--gray);
+    text-align: center;
+    margin-top: 1px;
+  }
+  .rpe-select {
+    width: 100%;
+    border: 1px solid var(--mid);
+    background: var(--white);
+    border-radius: 6px;
+    padding: 8px 2px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--navy);
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .check-btn {
+    background: var(--light);
+    border: 2px solid var(--mid);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--gray);
+    transition: all 0.15s;
+  }
+  .check-btn:active { transform: scale(0.92); }
+  .set-row.done .check-btn {
+    background: var(--success);
+    border-color: var(--success);
+    color: var(--white);
+  }
+
+  .sets-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--light);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+  .sets-meta .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+  .sets-meta .item label {
+    color: var(--gray);
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+  }
+  .sets-meta .item value {
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* ============ CHECKLIST (warm-up / daily) ============ */
+  .check-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--mid);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .check-item.done { background: #EEF7F0; border-color: var(--success); }
+  .check-item .figure {
+    width: 52px; height: 52px; background: var(--light);
+    border-radius: 8px; padding: 4px; flex-shrink: 0;
+  }
+  .check-item .figure svg { width: 100%; height: 100%; }
+  .check-item .info { flex: 1; min-width: 0; }
+  .check-item .info .name { font-weight: 700; font-size: 14px; color: var(--navy); }
+  .check-item .info .desc { font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.35; }
+  .check-item .target {
+    flex-shrink: 0;
+    color: var(--orange);
+    font-weight: 700;
+    font-size: 13px;
+    text-align: right;
+    min-width: 60px;
+  }
+  .check-item.done .target { color: var(--success); text-decoration: line-through; }
+  .check-item .checkmark {
+    flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--mid);
+    display: flex; align-items: center; justify-content: center;
+    color: transparent;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .check-item.done .checkmark {
+    background: var(--success); border-color: var(--success);
+    color: var(--white);
+  }
+
+  /* ============ COOLDOWN BOX ============ */
+  .cooldown-box {
+    background: linear-gradient(135deg, #E5F0E8 0%, var(--white) 100%);
+    border: 1px solid var(--success);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .cooldown-box .label {
+    font-size: 11px;
+    color: var(--success);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  /* ============ ACTION BAR ============ */
+  .action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--mid);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    z-index: 30;
+    box-shadow: 0 -2px 8px rgba(31,42,68,0.04);
+  }
+  .action-bar-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    flex: 1;
+    padding: 13px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--orange); color: var(--white); }
+  .btn-secondary { background: var(--light); color: var(--navy); border: 1px solid var(--mid); }
+  .btn-danger { background: #FCE8E2; color: var(--danger); }
+
+  /* ============ TIMER OVERLAY ============ */
+  .timer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31,42,68,0.92);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .timer-overlay.show { display: flex; }
+  .timer-box {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px 24px 24px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .timer-label {
+    font-size: 12px;
+    color: var(--orange);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .timer-display {
+    font-size: 72px;
+    font-weight: 700;
+    color: var(--navy);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .timer-display.warn { color: var(--orange); }
+  .timer-display.done { color: var(--success); animation: pulse 0.6s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .timer-of {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 24px;
+  }
+  .timer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .timer-actions button {
+    padding: 12px 8px;
+    border: 1px solid var(--mid);
+    background: var(--white);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--navy);
+    font-family: inherit;
+  }
+  .timer-actions button.primary { background: var(--orange); color: var(--white); border-color: var(--orange); }
+
+  /* ============ HISTORY MODAL ============ */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(31,42,68,0.5);
+    z-index: 90;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 16px 16px 0 0;
+    padding: 16px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--mid);
+  }
+  .modal-header h3 {
+    font-size: 17px;
+    color: var(--navy);
+  }
+  .modal-close {
+    background: var(--light);
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--gray);
+  }
+  .history-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--mid);
+    font-size: 13px;
+  }
+  .history-item .date { font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .history-item .summary { color: var(--gray); font-size: 12px; }
+  .history-item .exercises { margin-top: 6px; font-size: 12px; color: var(--text); }
+  .history-empty { padding: 40px 20px; text-align: center; color: var(--gray); font-size: 14px; }
+
+  /* desktop tweaks */
+  @media (min-width: 600px) {
+    .card-figure { width: 80px; height: 80px; }
+    .check-item .figure { width: 64px; height: 64px; }
+    .set-row {
+      grid-template-columns: 44px 1fr 1fr 70px auto;
+      gap: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div>
+      <div class="title" id="sessionTitle">Sessione A</div>
+      <div class="session-date" id="sessionDate"></div>
+    </div>
+    <div class="session-timer" id="sessionTimer" title="Timer seduta — tap per reset">00:00</div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab" data-key="warmup">Warm-up <span class="count" id="cnt-warmup">0/5</span></button>
+    <button class="tab active" data-key="sessionA">Sessione A <span class="count" id="cnt-sessionA">0/6</span></button>
+    <button class="tab" data-key="sessionB">Sessione B <span class="count" id="cnt-sessionB">0/6</span></button>
+    <button class="tab" data-key="daily">Daily <span class="count" id="cnt-daily">0/7</span></button>
+  </div>
+</nav>
+
+<main id="main"></main>
+
+<div class="action-bar">
+  <div class="action-bar-inner">
+    <button class="btn btn-secondary" id="btnHistory">📋 Storico</button>
+    <button class="btn btn-secondary" id="btnReset">Reset oggi</button>
+    <button class="btn btn-primary" id="btnSave">Salva seduta</button>
+  </div>
+</div>
+
+<div class="timer-overlay" id="timerOverlay">
+  <div class="timer-box">
+    <div class="timer-label" id="timerLabel">RECUPERO</div>
+    <div class="timer-display" id="timerDisplay">1:30</div>
+    <div class="timer-of" id="timerOf"></div>
+    <div class="timer-actions">
+      <button id="btnTimerPause">Pausa</button>
+      <button id="btnTimerSkip">Salta</button>
+      <button id="btnTimerAdd" class="primary">+15s</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="historyModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Storico Sedute</h3>
+      <button class="modal-close" id="btnHistoryClose">×</button>
+    </div>
+    <div id="historyContent"></div>
+  </div>
+</div>
+
+<script>
+const SVGS = {"hip_thrust_kb": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Hip thrust: shoulders on bench, KB on hips, both legs visible -->\n  <!-- floor -->\n  <line x1=\"10\" y1=\"180\" x2=\"190\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Bench (horizontal) -->\n  <rect x=\"10\" y=\"90\" width=\"65\" height=\"14\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"20\" y=\"104\" width=\"6\" height=\"50\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"60\" y=\"104\" width=\"6\" height=\"50\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body: shoulders on bench, hips up horizontal -->\n  <line x1=\"40\" y1=\"80\" x2=\"125\" y2=\"80\" stroke=\"#1F2A44\" stroke-width=\"7\" stroke-linecap=\"round\"/>\n  <!-- Thighs down (both legs) -->\n  <line x1=\"125\" y1=\"80\" x2=\"155\" y2=\"145\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"120\" y1=\"82\" x2=\"148\" y2=\"145\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.6\"/>\n  <!-- Shins (both) -->\n  <line x1=\"155\" y1=\"145\" x2=\"155\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"148\" y1=\"145\" x2=\"148\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.6\"/>\n  <!-- Head -->\n  <circle cx=\"35\" cy=\"80\" r=\"12\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- KB on hips (orange round with handle) -->\n  <circle cx=\"120\" cy=\"68\" r=\"12\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"113\" y=\"53\" width=\"14\" height=\"9\" fill=\"none\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"3\"/>\n  <!-- Up/down arrow at hips -->\n  <path d=\"M 95 50 L 95 70\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"92,67 95,75 98,67\" fill=\"#E07A3C\"/>\n  <polygon points=\"92,53 95,45 98,53\" fill=\"#E07A3C\"/>\n\n</svg>", "side_plank": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Side plank: lateral support -->\n  <!-- Body in side plank -->\n  <line x1=\"40\" y1=\"80\" x2=\"170\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"7\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"35\" cy=\"72\" r=\"13\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Supporting forearm -->\n  <line x1=\"55\" y1=\"88\" x2=\"55\" y2=\"155\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"55\" y1=\"155\" x2=\"80\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Top arm raised -->\n  <line x1=\"55\" y1=\"83\" x2=\"55\" y2=\"35\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Feet stacked -->\n  <line x1=\"170\" y1=\"160\" x2=\"180\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"170\" x2=\"190\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- alignment dashed line -->\n  <line x1=\"30\" y1=\"65\" x2=\"180\" y2=\"158\" stroke=\"#E07A3C\" stroke-width=\"1\" stroke-dasharray=\"3 3\"/>\n\n</svg>", "goblet_squat": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Goblet squat: holding KB at chest, deep squat -->\n  <!-- Body upright in squat -->\n  <line x1=\"100\" y1=\"60\" x2=\"100\" y2=\"115\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"100\" cy=\"45\" r=\"14\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Thighs (knees out) -->\n  <line x1=\"100\" y1=\"115\" x2=\"65\" y2=\"140\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"115\" x2=\"135\" y2=\"140\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Shins down to feet -->\n  <line x1=\"65\" y1=\"140\" x2=\"65\" y2=\"175\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"135\" y1=\"140\" x2=\"135\" y2=\"175\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Feet -->\n  <line x1=\"55\" y1=\"175\" x2=\"75\" y2=\"175\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"125\" y1=\"175\" x2=\"145\" y2=\"175\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Arms holding KB -->\n  <line x1=\"100\" y1=\"75\" x2=\"85\" y2=\"95\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"75\" x2=\"115\" y2=\"95\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <!-- KB at chest -->\n  <circle cx=\"100\" cy=\"92\" r=\"13\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"93\" y=\"77\" width=\"14\" height=\"9\" fill=\"none\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"3\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"180\" x2=\"190\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n\n</svg>", "cat_cow": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Cat-cow: quadruped position, arched back (cat phase) -->\n  <!-- floor -->\n  <line x1=\"10\" y1=\"165\" x2=\"190\" y2=\"165\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- ARMS straight down from shoulders -->\n  <line x1=\"155\" y1=\"80\" x2=\"155\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"145\" y1=\"82\" x2=\"145\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.6\"/>\n  <!-- THIGHS down from hips -->\n  <line x1=\"40\" y1=\"80\" x2=\"40\" y2=\"130\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"50\" y1=\"82\" x2=\"50\" y2=\"130\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.6\"/>\n  <!-- SHINS on floor -->\n  <line x1=\"40\" y1=\"130\" x2=\"65\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- BACK arched up (cat) - curved line connecting shoulders and hips -->\n  <path d=\"M 40 80 Q 100 35 155 80\" stroke=\"#1F2A44\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/>\n  <!-- HEAD hanging down (looking at floor) -->\n  <circle cx=\"170\" cy=\"95\" r=\"14\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- arrow up showing arched back movement -->\n  <path d=\"M 100 25 L 100 50\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"95,30 100,18 105,30\" fill=\"#E07A3C\"/>\n  <text x=\"35\" y=\"20\" fill=\"#E07A3C\" font-family=\"Helvetica\" font-size=\"11\" font-weight=\"bold\">arco verso l'alto</text>\n\n</svg>", "push_up": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Push-up: side view, body parallel to floor, supported by arms -->\n  <!-- floor -->\n  <line x1=\"10\" y1=\"170\" x2=\"190\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body horizontal (head, shoulders, hips, ankles aligned) -->\n  <line x1=\"35\" y1=\"100\" x2=\"175\" y2=\"115\" stroke=\"#1F2A44\" stroke-width=\"7\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"28\" cy=\"98\" r=\"12\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Support arms: from shoulder down to floor (vertical) -->\n  <line x1=\"55\" y1=\"103\" x2=\"55\" y2=\"167\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"70\" y1=\"105\" x2=\"70\" y2=\"167\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.7\"/>\n  <!-- Feet on floor (toes) -->\n  <line x1=\"170\" y1=\"115\" x2=\"180\" y2=\"168\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- alignment dashed: straight line from head to feet showing rigid plank -->\n  <line x1=\"28\" y1=\"90\" x2=\"180\" y2=\"160\" stroke=\"#E07A3C\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/>\n  <!-- Down/Up arrow -->\n  <path d=\"M 110 70 L 110 90\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"105,88 110,98 115,88\" fill=\"#E07A3C\"/>\n  <path d=\"M 110 60 L 110 50\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"105,55 110,45 115,55\" fill=\"#E07A3C\"/>\n\n</svg>", "pull_up": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Pull-up: hanging from bar, body up -->\n  <!-- Bar -->\n  <line x1=\"20\" y1=\"25\" x2=\"180\" y2=\"25\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Supports -->\n  <line x1=\"30\" y1=\"25\" x2=\"30\" y2=\"10\" stroke=\"#1F2A44\" stroke-width=\"3\"/>\n  <line x1=\"170\" y1=\"25\" x2=\"170\" y2=\"10\" stroke=\"#1F2A44\" stroke-width=\"3\"/>\n  <!-- Hands on bar -->\n  <circle cx=\"75\" cy=\"30\" r=\"4\" fill=\"#1F2A44\"/>\n  <circle cx=\"125\" cy=\"30\" r=\"4\" fill=\"#1F2A44\"/>\n  <!-- Arms (slightly bent, body raised) -->\n  <line x1=\"75\" y1=\"32\" x2=\"85\" y2=\"65\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"125\" y1=\"32\" x2=\"115\" y2=\"65\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"100\" cy=\"55\" r=\"13\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Body -->\n  <line x1=\"100\" y1=\"65\" x2=\"100\" y2=\"150\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Shoulders -->\n  <line x1=\"85\" y1=\"65\" x2=\"115\" y2=\"65\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Legs (bent, ankles crossed) -->\n  <line x1=\"100\" y1=\"150\" x2=\"90\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"150\" x2=\"110\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- arrow showing chin above bar -->\n  <path d=\"M 100 40 L 100 28\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"96,30 100,22 104,30\" fill=\"#E07A3C\"/>\n\n</svg>", "lateral_raise": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Lateral raise (standing) -->\n  <!-- Body -->\n  <line x1=\"100\" y1=\"55\" x2=\"100\" y2=\"150\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"100\" cy=\"40\" r=\"14\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Arms out to sides (raised) -->\n  <line x1=\"100\" y1=\"70\" x2=\"50\" y2=\"78\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"70\" x2=\"150\" y2=\"78\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Legs -->\n  <line x1=\"100\" y1=\"150\" x2=\"85\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"150\" x2=\"115\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Dumbbells in hands -->\n  <rect x=\"32\" y=\"74\" width=\"16\" height=\"8\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <rect x=\"152\" y=\"74\" width=\"16\" height=\"8\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"185\" x2=\"190\" y2=\"185\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- arrows showing lateral movement -->\n  <path d=\"M 55 60 L 55 73\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"50,70 55,78 60,70\" fill=\"#E07A3C\"/>\n  <path d=\"M 145 60 L 145 73\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"140,70 145,78 150,70\" fill=\"#E07A3C\"/>\n\n</svg>", "reverse_fly": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Reverse fly: prone on incline bench, arms out to sides -->\n  <!-- Inclined bench (30) -->\n  <polygon points=\"30,170 165,170 165,160 50,80 40,80\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body face down on bench -->\n  <line x1=\"50\" y1=\"92\" x2=\"155\" y2=\"155\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head extended -->\n  <circle cx=\"42\" cy=\"84\" r=\"12\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Arms out to sides (wide) -->\n  <line x1=\"80\" y1=\"115\" x2=\"30\" y2=\"150\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"115\" x2=\"130\" y2=\"80\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Dumbbells -->\n  <rect x=\"20\" y=\"148\" width=\"18\" height=\"9\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <rect x=\"125\" y=\"73\" width=\"18\" height=\"9\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"180\" x2=\"190\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- arrows showing arms moving out -->\n  <path d=\"M 30 130 L 22 145\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"18,140 16,150 26,148\" fill=\"#E07A3C\"/>\n  <path d=\"M 130 95 L 138 80\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"142,85 144,75 134,77\" fill=\"#E07A3C\"/>\n\n</svg>", "one_arm_row": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- One-arm DB row on bench -->\n  <!-- Bench -->\n  <rect x=\"40\" y=\"120\" width=\"120\" height=\"12\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"50\" y=\"132\" width=\"6\" height=\"35\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"144\" y=\"132\" width=\"6\" height=\"35\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body bent over, one hand on bench -->\n  <!-- Torso parallel to floor -->\n  <line x1=\"40\" y1=\"100\" x2=\"150\" y2=\"105\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head extended -->\n  <circle cx=\"32\" cy=\"98\" r=\"12\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Supporting arm down to bench -->\n  <line x1=\"100\" y1=\"105\" x2=\"100\" y2=\"125\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Rowing arm - elbow up -->\n  <line x1=\"120\" y1=\"105\" x2=\"115\" y2=\"80\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"115\" y1=\"80\" x2=\"115\" y2=\"125\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Dumbbell -->\n  <rect x=\"105\" y=\"125\" width=\"20\" height=\"10\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <circle cx=\"107\" cy=\"130\" r=\"7\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <circle cx=\"123\" cy=\"130\" r=\"7\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- One knee on bench -->\n  <line x1=\"150\" y1=\"108\" x2=\"150\" y2=\"120\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Other leg standing -->\n  <line x1=\"40\" y1=\"105\" x2=\"40\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"180\" x2=\"190\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- arrow showing rowing direction -->\n  <path d=\"M 130 95 L 118 80\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"114,84 122,76 124,86\" fill=\"#E07A3C\"/>\n\n</svg>", "db_bench_inclined": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Inclined DB bench press -->\n  <!-- Inclined bench (30 deg) -->\n  <polygon points=\"40,170 170,170 170,160 60,90 50,90\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body on bench -->\n  <line x1=\"55\" y1=\"100\" x2=\"155\" y2=\"155\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"50\" cy=\"93\" r=\"12\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Arms pressing up -->\n  <line x1=\"90\" y1=\"115\" x2=\"100\" y2=\"70\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"110\" y1=\"125\" x2=\"120\" y2=\"80\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <!-- Dumbbells -->\n  <rect x=\"90\" y=\"55\" width=\"20\" height=\"8\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <circle cx=\"92\" cy=\"59\" r=\"7\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <circle cx=\"108\" cy=\"59\" r=\"7\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"110\" y=\"68\" width=\"20\" height=\"8\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <circle cx=\"112\" cy=\"72\" r=\"7\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <circle cx=\"128\" cy=\"72\" r=\"7\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"178\" x2=\"190\" y2=\"178\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n\n</svg>", "dead_bug": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Dead bug: lying on back, opposite arm overhead + opposite leg extended -->\n  <!-- floor -->\n  <line x1=\"10\" y1=\"170\" x2=\"190\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body (torso) lying flat -->\n  <line x1=\"50\" y1=\"130\" x2=\"115\" y2=\"130\" stroke=\"#1F2A44\" stroke-width=\"7\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"42\" cy=\"130\" r=\"12\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- LEFT ARM extended overhead (back behind head, pointing left) -->\n  <line x1=\"55\" y1=\"128\" x2=\"20\" y2=\"100\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- RIGHT ARM bent up vertical (resting position) -->\n  <line x1=\"105\" y1=\"130\" x2=\"105\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\" opacity=\"0.5\"/>\n  <!-- RIGHT LEG extended out (opposite to left arm) -->\n  <line x1=\"115\" y1=\"130\" x2=\"180\" y2=\"115\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- LEFT LEG bent (knee up at 90, thigh vertical, shin horizontal) -->\n  <line x1=\"105\" y1=\"135\" x2=\"115\" y2=\"85\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"115\" y1=\"85\" x2=\"155\" y2=\"85\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Arrow on extending arm -->\n  <path d=\"M 30 90 L 18 95\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"14,92 24,92 20,100\" fill=\"#E07A3C\"/>\n  <!-- Arrow on extending leg -->\n  <path d=\"M 175 105 L 185 110\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"180,113 190,115 186,107\" fill=\"#E07A3C\"/>\n  <!-- Lombare flat indicator (text) -->\n  <line x1=\"80\" y1=\"125\" x2=\"80\" y2=\"135\" stroke=\"#E07A3C\" stroke-width=\"2\"/>\n  <text x=\"65\" y=\"158\" fill=\"#E07A3C\" font-family=\"Helvetica\" font-size=\"10\" font-weight=\"bold\">lombare a terra</text>\n\n</svg>", "face_pull": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Face pull with band -->\n  <!-- Anchor point (wall) -->\n  <rect x=\"5\" y=\"60\" width=\"6\" height=\"20\" fill=\"#1F2A44\"/>\n  <circle cx=\"15\" cy=\"70\" r=\"4\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Band (curved lines from anchor to hands) -->\n  <path d=\"M 15 65 Q 80 55 100 60\" stroke=\"#E07A3C\" stroke-width=\"3\" fill=\"none\" stroke-dasharray=\"4 2\"/>\n  <path d=\"M 15 75 Q 80 80 100 75\" stroke=\"#E07A3C\" stroke-width=\"3\" fill=\"none\" stroke-dasharray=\"4 2\"/>\n  <!-- Body -->\n  <line x1=\"140\" y1=\"60\" x2=\"140\" y2=\"150\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"140\" cy=\"45\" r=\"14\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Arms pulling to face -->\n  <line x1=\"140\" y1=\"68\" x2=\"120\" y2=\"55\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"120\" y1=\"55\" x2=\"100\" y2=\"60\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"140\" y1=\"72\" x2=\"120\" y2=\"80\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"120\" y1=\"80\" x2=\"100\" y2=\"75\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <!-- Legs -->\n  <line x1=\"140\" y1=\"150\" x2=\"125\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"140\" y1=\"150\" x2=\"155\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"185\" x2=\"190\" y2=\"185\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- arrow direction of pull -->\n  <path d=\"M 75 95 L 105 88\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"100,84 110,87 102,93\" fill=\"#E07A3C\"/>\n\n</svg>", "wall_slide": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Wall slide: figure against wall, arms in goal-post -->\n  <!-- wall -->\n  <line x1=\"40\" y1=\"20\" x2=\"40\" y2=\"190\" stroke=\"#1F2A44\" stroke-width=\"3\"/>\n  <line x1=\"35\" y1=\"20\" x2=\"35\" y2=\"190\" stroke=\"#1F2A44\" stroke-width=\"1\" stroke-dasharray=\"3 3\"/>\n  <!-- body against wall -->\n  <line x1=\"45\" y1=\"60\" x2=\"45\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- head -->\n  <circle cx=\"45\" cy=\"48\" r=\"14\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- arms in W/goal-post position -->\n  <line x1=\"45\" y1=\"80\" x2=\"80\" y2=\"65\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"65\" x2=\"80\" y2=\"35\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"45\" y1=\"85\" x2=\"80\" y2=\"95\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"95\" x2=\"80\" y2=\"125\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <!-- legs -->\n  <line x1=\"45\" y1=\"160\" x2=\"55\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- movement arrows -->\n  <path d=\"M 110 65 L 130 50\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"128,46 134,48 130,55\" fill=\"#E07A3C\"/>\n  <path d=\"M 110 95 L 130 80\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"128,76 134,78 130,85\" fill=\"#E07A3C\"/>\n\n</svg>", "hip_flexor_90": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- 90/90 hip flexor stretch: half-kneeling position -->\n  <!-- back leg (kneeling) -->\n  <line x1=\"60\" y1=\"120\" x2=\"60\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"170\" x2=\"100\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- torso vertical -->\n  <line x1=\"60\" y1=\"120\" x2=\"60\" y2=\"55\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- head -->\n  <circle cx=\"60\" cy=\"42\" r=\"13\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- front leg (90 degrees) -->\n  <line x1=\"60\" y1=\"120\" x2=\"120\" y2=\"120\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"120\" y1=\"120\" x2=\"120\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"120\" y1=\"170\" x2=\"145\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- arms (hands on hips or front knee) -->\n  <line x1=\"60\" y1=\"75\" x2=\"90\" y2=\"100\" stroke=\"#1F2A44\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"60\" y1=\"78\" x2=\"40\" y2=\"105\" stroke=\"#1F2A44\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <!-- floor -->\n  <line x1=\"20\" y1=\"175\" x2=\"180\" y2=\"175\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- arrow showing forward pelvis lean -->\n  <path d=\"M 30 95 L 50 105\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"45,100 53,108 41,108\" fill=\"#E07A3C\"/>\n\n</svg>", "bulgarian_split": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Bulgarian split squat: front leg loaded, back foot elevated on bench -->\n  <!-- floor -->\n  <line x1=\"10\" y1=\"180\" x2=\"190\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Bench behind (lower height) -->\n  <rect x=\"140\" y=\"125\" width=\"50\" height=\"10\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"145\" y=\"135\" width=\"5\" height=\"45\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"180\" y=\"135\" width=\"5\" height=\"45\" fill=\"#D8DCE5\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- Body upright -->\n  <line x1=\"75\" y1=\"55\" x2=\"78\" y2=\"125\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"74\" cy=\"42\" r=\"13\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Front leg bent (~90 deg knee), foot on floor -->\n  <line x1=\"78\" y1=\"125\" x2=\"55\" y2=\"155\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"55\" y1=\"155\" x2=\"55\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <line x1=\"45\" y1=\"180\" x2=\"65\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Back leg extended behind, foot up on bench -->\n  <line x1=\"78\" y1=\"125\" x2=\"125\" y2=\"135\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Knee bent slightly -->\n  <line x1=\"125\" y1=\"135\" x2=\"148\" y2=\"125\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Foot on bench (visible) -->\n  <circle cx=\"150\" cy=\"123\" r=\"4\" fill=\"#1F2A44\"/>\n  <!-- Arms holding KB at chest -->\n  <line x1=\"75\" y1=\"75\" x2=\"60\" y2=\"95\" stroke=\"#1F2A44\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <line x1=\"78\" y1=\"75\" x2=\"92\" y2=\"95\" stroke=\"#1F2A44\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <circle cx=\"76\" cy=\"92\" r=\"11\" fill=\"#E07A3C\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <rect x=\"70\" y=\"79\" width=\"12\" height=\"6\" fill=\"none\" stroke=\"#1F2A44\" stroke-width=\"2\" rx=\"2\"/>\n  <!-- Down/up indicator -->\n  <path d=\"M 25 100 L 25 130\" stroke=\"#E07A3C\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <polygon points=\"22,127 25,135 28,127\" fill=\"#E07A3C\"/>\n  <polygon points=\"22,103 25,95 28,103\" fill=\"#E07A3C\"/>\n\n</svg>", "chin_tuck": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Chin tuck: profile of head/neck showing chin retraction -->\n  <!-- Outline of head profile (forward) - faint -->\n  <path d=\"M 100 100 Q 130 80 130 60 Q 130 40 110 35 Q 95 35 90 50 Q 90 55 95 60 L 95 75 Q 95 85 85 85 L 100 100\"\n        stroke=\"#1F2A44\" stroke-width=\"2\" fill=\"none\" stroke-dasharray=\"3 3\" opacity=\"0.4\"/>\n  <!-- Outline of head retracted (correct position) - solid -->\n  <path d=\"M 110 100 Q 100 80 105 60 Q 110 40 90 35 Q 75 35 70 50 Q 70 55 75 60 L 75 75 Q 75 85 65 85 L 80 100\"\n        stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Body/shoulders -->\n  <line x1=\"50\" y1=\"100\" x2=\"150\" y2=\"100\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"100\" y1=\"100\" x2=\"100\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- arrow showing chin pulling back -->\n  <path d=\"M 145 55 L 120 55\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"125,50 115,55 125,60\" fill=\"#E07A3C\"/>\n  <text x=\"150\" y=\"58\" fill=\"#E07A3C\" font-family=\"Helvetica\" font-size=\"11\" font-weight=\"bold\">indietro</text>\n\n</svg>", "pec_stretch": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Doorway pec stretch -->\n  <!-- Doorway frame -->\n  <line x1=\"40\" y1=\"20\" x2=\"40\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\"/>\n  <line x1=\"35\" y1=\"20\" x2=\"35\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"1\" stroke-dasharray=\"3 3\"/>\n  <!-- Body -->\n  <line x1=\"80\" y1=\"60\" x2=\"80\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"6\" stroke-linecap=\"round\"/>\n  <!-- Head -->\n  <circle cx=\"80\" cy=\"47\" r=\"14\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- Arm against frame, elbow at 90 -->\n  <line x1=\"80\" y1=\"75\" x2=\"55\" y2=\"55\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"55\" y1=\"55\" x2=\"40\" y2=\"80\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- Other arm relaxed -->\n  <line x1=\"80\" y1=\"78\" x2=\"100\" y2=\"115\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <!-- Legs -->\n  <line x1=\"80\" y1=\"160\" x2=\"65\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <line x1=\"80\" y1=\"160\" x2=\"95\" y2=\"180\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- arrow showing body forward lean -->\n  <path d=\"M 110 100 L 95 100\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"100,95 90,100 100,105\" fill=\"#E07A3C\"/>\n\n</svg>", "glute_bridge": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">\n\n  <!-- Glute bridge: lying on back, hips lifted -->\n  <line x1=\"30\" y1=\"150\" x2=\"100\" y2=\"150\" stroke=\"#1F2A44\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <!-- torso going up to lifted hips -->\n  <line x1=\"100\" y1=\"150\" x2=\"140\" y2=\"100\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- thigh down -->\n  <line x1=\"140\" y1=\"100\" x2=\"170\" y2=\"140\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- shin -->\n  <line x1=\"170\" y1=\"140\" x2=\"170\" y2=\"170\" stroke=\"#1F2A44\" stroke-width=\"5\" stroke-linecap=\"round\"/>\n  <!-- head -->\n  <circle cx=\"25\" cy=\"150\" r=\"13\" stroke=\"#1F2A44\" stroke-width=\"3\" fill=\"white\"/>\n  <!-- arms along sides -->\n  <line x1=\"55\" y1=\"155\" x2=\"90\" y2=\"160\" stroke=\"#1F2A44\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <!-- floor -->\n  <line x1=\"10\" y1=\"175\" x2=\"190\" y2=\"175\" stroke=\"#1F2A44\" stroke-width=\"2\"/>\n  <!-- arrow indicating hip lift -->\n  <path d=\"M 140 65 L 140 90\" stroke=\"#E07A3C\" stroke-width=\"3\" stroke-linecap=\"round\"/>\n  <polygon points=\"135,90 140,100 145,90\" fill=\"#E07A3C\"/>\n\n</svg>"};
+
+const PROGRAM = {"warmup": {"title": "Warm-up Universale", "subtitle": "5 minuti — prima di OGNI sessione (A o B)", "type": "checklist", "exercises": [{"id": "cat_cow", "name": "Cat-Cow", "svg": "cat_cow", "esecuzione": "A quadrupedia. Espirando arrotonda la schiena (gatto), inspirando avvallala (mucca). Movimento lento dalla colonna, non dalla spinta delle braccia.", "target": "8 cicli lenti"}, {"id": "glute_bridge_wu", "name": "Glute Bridge (attivazione)", "svg": "glute_bridge", "esecuzione": "Sdraiato supino, ginocchia piegate. Spingi dai talloni e contrai i glutei portando le anche in alto. Pausa breve in cima.", "target": "10 reps"}, {"id": "wall_slide_wu", "name": "Wall Slides scapolari", "svg": "wall_slide", "esecuzione": "Schiena, glutei e testa al muro. Braccia a 'goal post' (W) al muro. Sali e scendi tenendo il contatto braccia-muro.", "target": "10 reps lente"}, {"id": "chin_tuck_wu", "name": "Chin Tuck", "svg": "chin_tuck", "esecuzione": "Senza inclinare la testa, retraila portando il mento indietro (doppio mento volontario). 2 secondi di tenuta.", "target": "10 reps"}, {"id": "hip_flexor_90_wu", "name": "Stretch ileopsoas 90/90", "svg": "hip_flexor_90", "esecuzione": "Affondo inginocchiato. Spingi il bacino in avanti tenendo il busto verticale e contraendo il gluteo del lato in tenuta. CRUCIALE per il tuo anterior pelvic tilt.", "target": "30 sec / lato"}]}, "sessionA": {"title": "Sessione A", "subtitle": "Spinta + Posteriore basso + Anti-estensione · 35-40 min · 2 volte/sett", "type": "workout", "exercises": [{"id": "db_bench_inclined", "name": "DB Bench Press inclinato 30°", "tag": "1 — SPINTA ORIZZONTALE", "svg": "db_bench_inclined", "esecuzione": ["Panca inclinata a 30° (la prima tacca, bassa)", "Manubri ai lati del petto, gomiti a ~45° (non a 90°)", "Spingi verso l'alto SENZA inarcare la lombare", "Scapole compatte e retratte durante tutta la serie"], "cues": ["Niente arco lombare per usare più peso = aggrava il tuo Lower Cross", "Glutei attaccati alla panca per tutta la serie"], "sets": 4, "reps_target": "8-10", "weight_default": 10, "tempo": "3-1-1", "rest": 90}, {"id": "push_up", "name": "Push-up tempo controllato", "tag": "2 — SPINTA A CORPO LIBERO", "svg": "push_up", "esecuzione": ["Mani sotto le spalle, corpo rigido come una tavola", "Discesa lenta in 3\" fino a sfiorare il pavimento col petto", "Risalita esplosiva, glutei contratti", "Quando arrivi a 12 reps pulite: passa a piedi sollevati su panca"], "cues": ["NIENTE bacino che cede in basso", "Testa allineata al corpo, NON in avanti"], "sets": 3, "reps_target": "AMRAP-2", "weight_default": 0, "tempo": "3-1-1", "rest": 60, "bodyweight": true}, {"id": "hip_thrust_kb", "name": "Hip Thrust con KB sulla pelvi", "tag": "3 — POSTERIORE BASSO", "svg": "hip_thrust_kb", "esecuzione": ["Schiena alta sul bordo della panca, piedi piatti", "Kettlebell sull'osso pelvico (proteggi con un asciugamano)", "Spingi dai talloni, contrai i glutei in cima per 2\"", "Tronco-anche in linea retta in cima"], "cues": ["NO iperestensione lombare in cima", "Sguardo davanti a te (no testa indietro)"], "sets": 3, "reps_target": "12", "weight_default": 12, "tempo": "2-2-1", "rest": 75}, {"id": "lateral_raise", "name": "Lateral Raise + Y-Raise prono", "tag": "4 — SPALLE / DELTOIDE", "svg": "lateral_raise", "esecuzione": ["Lateral (3×12): in piedi, manubri ai lati, alza fino all'altezza spalle", "Y-Raise (3×10): prono su panca 30°, manubri sotto, alza a 'Y'", "Movimento lento, no swing del busto"], "cues": ["Le Y-Raise lavorano trapezio inferiore = ANTI-postura PC", "Niente military press standing (cervicale)"], "sets": 6, "reps_target": "12 / 10", "weight_default": 5, "tempo": "2-1-2", "rest": 60, "compound_note": "3 serie Lateral + 3 serie Y-Raise"}, {"id": "face_pull", "name": "Face Pull con elastico", "tag": "5 — POSTURALE ⭐", "svg": "face_pull", "esecuzione": ["Aggancia l'elastico ad altezza viso", "Tira verso il viso aprendo i gomiti, mani vicino alle orecchie", "Pausa 2\" con scapole retratte e basse", "Ritorno lento"], "cues": ["Esercizio NON saltabile — il principale anti-Upper Cross", "Lavora trap medio, romboidi, deltoide posteriore"], "sets": 3, "reps_target": "15", "weight_default": "Elastico", "tempo": "2-2-2", "rest": 45, "elastic": true}, {"id": "dead_bug", "name": "Dead Bug", "tag": "6 — CORE ANTI-ESTENSIONE ⭐", "svg": "dead_bug", "esecuzione": ["Supino, ginocchia 90°, braccia verso il soffitto", "Estendi LENTAMENTE braccio dx + gamba sx", "Lombare SCHIACCIATA al pavimento per tutto il movimento", "Torna controllato e alterna lato"], "cues": ["Se la lombare si stacca: riduci l'escursione", "Insegna al core a resistere all'estensione = la cura per la tua lordosi"], "sets": 2, "reps_target": "10/lato", "weight_default": 0, "tempo": "lento", "rest": 30, "bodyweight": true}], "cooldown": "Respirazione 4-7-8 sdraiato × 5 cicli (4\" inspira / 7\" trattieni / 8\" espira)"}, "sessionB": {"title": "Sessione B", "subtitle": "Tirata + Quadricipite/Glutei + Anti-rotazione · 35-40 min · 1 volta/sett", "type": "workout", "exercises": [{"id": "pull_up", "name": "Pull-up (presa prona)", "tag": "1 — TIRATA VERTICALE", "svg": "pull_up", "esecuzione": ["Presa prona (palmi avanti), larghezza spalle", "Parti da appeso completo (full hang)", "Tira fino a mento sopra la sbarra", "Scendi controllato in 2\" (NO caduta)", "Se 4 trazioni sono il max: 4/3/3/2 con elastico assistenza"], "cues": ["Pensa a 'piegare la sbarra' = attiva grand dorsale", "Niente swing/kipping"], "sets": 4, "reps_target": "RPE 8", "weight_default": 0, "tempo": "2-1-1", "rest": 120, "bodyweight": true}, {"id": "one_arm_row", "name": "One-Arm DB Row su panca", "tag": "2 — TIRATA ORIZZONTALE", "svg": "one_arm_row", "esecuzione": ["Mano e ginocchio sulla panca, schiena parallela al pavimento", "Manubrio in mano libera, braccio teso verso il basso", "Tira il gomito verso il fianco vicino al corpo", "Squeeze 1\" in cima, scapola verso colonna"], "cues": ["Gomito NON si allarga (sarebbe face pull)", "Schiena dritta, no torsione"], "sets": 3, "reps_target": "10/lato", "weight_default": 10, "tempo": "2-1-2", "rest": 75}, {"id": "goblet_squat", "name": "Goblet Squat con KB", "tag": "3 — QUADRICIPITE / GLUTEI", "svg": "goblet_squat", "esecuzione": ["KB al petto a due mani ('calice')", "Piedi larghezza spalle, punte leggermente fuori (~15°)", "Scendi spingendo glutei indietro E SOTTO", "Vai sotto il parallelo (cosce sotto le ginocchia)", "Risali spingendo i talloni"], "cues": ["Ginocchia in linea con le punte", "Busto eretto, non curvarti avanti"], "sets": 4, "reps_target": "10-12", "weight_default": 12, "tempo": "3-1-1", "rest": 90}, {"id": "reverse_fly", "name": "Reverse Fly prono panca 30°", "tag": "4 — POSTURALE ⭐", "svg": "reverse_fly", "esecuzione": ["Prono (pancia in giù) sulla panca inclinata 30°", "Manubri pendenti sotto, palmi uno verso l'altro", "Apri le braccia ai lati con gomiti leggermente piegati", "Pausa 1\" con scapole strette, torna lento"], "cues": ["Lavora trap medio + delt posteriori = chiude la gobba dorsale", "Niente swing, peso poco e tecnica perfetta"], "sets": 3, "reps_target": "12", "weight_default": 4, "tempo": "2-1-2", "rest": 60}, {"id": "bulgarian_split", "name": "Bulgarian Split Squat (KB al petto)", "tag": "5 — UNILATERALE GAMBA", "svg": "bulgarian_split", "esecuzione": ["Piede dietro sulla panca (collo del piede in giù)", "Gamba avanti ~1 passo, KB al petto", "Scendi finché ginocchio dietro quasi tocca", "Risali spingendo dal tallone della gamba avanti"], "cues": ["Ginocchio davanti sopra al piede", "Busto leggermente inclinato avanti = più glutei", "Mano libera al muro per equilibrio se serve"], "sets": 2, "reps_target": "10/gamba", "weight_default": 12, "tempo": "2-1-1", "rest": 60}, {"id": "side_plank", "name": "Side Plank", "tag": "6 — CORE ANTI-ROTAZIONE ⭐", "svg": "side_plank", "esecuzione": ["Su un fianco, avambraccio sotto la spalla", "Solleva bacino: caviglia-anca-spalla allineate", "Tenuta isometrica, respira normalmente", "Cambia lato"], "cues": ["NIENTE collasso bacino verso pavimento", "Spinge il fianco verso il soffitto", "Lavora obliquo + quadrato lombi = stabilizza bacino"], "sets": 2, "reps_target": "30-45 sec/lato", "weight_default": 0, "tempo": "tenuta", "rest": 30, "bodyweight": true, "is_time": true}], "cooldown": "Stretch ileopsoas 90/90 1'/lato + Respirazione 4-7-8 × 5 cicli"}, "daily": {"title": "Routine Quotidiana", "subtitle": "5-10 min · ANCHE giorni off · Mattina o pausa pranzo", "type": "checklist", "exercises": [{"id": "chin_tuck_d", "name": "Chin Tuck", "svg": "chin_tuck", "esecuzione": "Riprogramma i flessori profondi del collo. Anti testa avanti.", "target": "× 10"}, {"id": "wall_slide_d", "name": "Wall Slides", "svg": "wall_slide", "esecuzione": "Riattiva il trapezio inferiore e dentato. Apre la postura toracica.", "target": "× 10"}, {"id": "cat_cow_d", "name": "Cat-Cow", "svg": "cat_cow", "esecuzione": "Mobilizza tutta la colonna in flesso-estensione. Anti-rigidità da seduta.", "target": "× 8 lente"}, {"id": "glute_bridge_d", "name": "Glute Bridge", "svg": "glute_bridge", "esecuzione": "Sveglia i glutei dopo ore seduto. Inibisce gli ileopsoas.", "target": "× 15"}, {"id": "hip_flexor_90_d", "name": "Stretch ileopsoas 90/90", "svg": "hip_flexor_90", "esecuzione": "CRUCIALE. Allunga gli ileopsoas accorciati dalle ore in sedia.", "target": "1' / lato"}, {"id": "pec_stretch_d", "name": "Doorway pec stretch", "svg": "pec_stretch", "esecuzione": "Apre il petto, contrasta cifosi e spalle in avanti.", "target": "30\" × 2"}, {"id": "breathing_d", "name": "Respirazione diaframmatica", "svg": "dead_bug", "esecuzione": "Sdraiato supino, una mano sul petto e una sulla pancia. Inspira facendo salire SOLO la mano della pancia. Anti-stress.", "target": "5 cicli"}]}};
+
+// ============ STATE ============
+const STORAGE_KEY = 'anthony_workout_v1';
+const TODAY = new Date().toISOString().slice(0, 10);
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    s.current = s.current || {};
+    s.history = s.history || [];
+    return s;
+  } catch(e) {
+    return { current: {}, history: [] };
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+// If date changed since last session, clear current
+if (state.currentDate !== TODAY) {
+  state.current = {};
+  state.currentDate = TODAY;
+  saveState();
+}
+
+let currentTab = 'sessionA';
+let sessionStartTs = null;
+let sessionTimerInterval = null;
+let restTimerInterval = null;
+let restRemaining = 0;
+let restTotal = 0;
+let restPaused = false;
+let restExerciseLabel = '';
+
+// ============ RENDER ============
+const $main = document.getElementById('main');
+const $sessionTitle = document.getElementById('sessionTitle');
+const $sessionDate = document.getElementById('sessionDate');
+
+function getExerciseState(exId) {
+  if (!state.current[currentTab]) state.current[currentTab] = {};
+  if (!state.current[currentTab][exId]) state.current[currentTab][exId] = {};
+  return state.current[currentTab][exId];
+}
+
+function renderTab(key) {
+  currentTab = key;
+  const section = PROGRAM[key];
+  $sessionTitle.textContent = section.title;
+  const opts = { weekday: 'long', day: 'numeric', month: 'short' };
+  $sessionDate.textContent = new Date().toLocaleDateString('it-IT', opts) + ' · ' + (section.subtitle || '');
+
+  // Mark active tab
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.key === key);
+  });
+
+  $main.innerHTML = '';
+
+  // Session header
+  const header = document.createElement('div');
+  header.className = 'session-header';
+  header.innerHTML = `<h2>${section.title}</h2><div class="sub">${section.subtitle || ''}</div>`;
+  $main.appendChild(header);
+
+  // Render exercises
+  if (section.type === 'workout') {
+    section.exercises.forEach(ex => $main.appendChild(renderWorkoutExercise(ex)));
+    if (section.cooldown) {
+      const cd = document.createElement('div');
+      cd.className = 'cooldown-box';
+      cd.innerHTML = `<div class="label">⚡ Cool-down (3 min)</div>${section.cooldown}`;
+      $main.appendChild(cd);
+    }
+  } else {
+    section.exercises.forEach(ex => $main.appendChild(renderChecklistItem(ex)));
+  }
+
+  updateAllCounts();
+}
+
+function renderWorkoutExercise(ex) {
+  const st = getExerciseState(ex.id);
+  if (!st.sets) {
+    st.sets = Array.from({length: ex.sets}, () => ({reps: '', weight: ex.weight_default || '', rpe: '', done: false}));
+  }
+
+  const doneCount = st.sets.filter(s => s.done).length;
+  const totalSets = ex.sets;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  if (st.open) card.classList.add('open');
+  if (doneCount === totalSets) card.classList.add('done');
+
+  const progressClass = doneCount === totalSets ? 'done' :
+                        doneCount > 0 ? 'partial' : '';
+
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="card-figure">${SVGS[ex.svg] || ''}</div>
+      <div class="card-head-text">
+        <div class="card-tag">${ex.tag}</div>
+        <div class="card-name">${ex.name}</div>
+        <div class="card-summary">${totalSets}×${ex.reps_target} · rec ${ex.rest}"</div>
+      </div>
+      <div class="card-progress ${progressClass}">${doneCount}/${totalSets}</div>
+    </div>
+    <div class="card-body"></div>
+  `;
+
+  card.querySelector('.card-head').addEventListener('click', () => {
+    card.classList.toggle('open');
+    st.open = card.classList.contains('open');
+    saveState();
+  });
+
+  const body = card.querySelector('.card-body');
+
+  // Execution (collapsible)
+  const exec = document.createElement('div');
+  exec.className = 'exec';
+  const cuesHtml = ex.cues && ex.cues.length ? `
+    <div class="cues-label">Punti chiave</div>
+    <ul>${ex.cues.map(c => `<li>${c}</li>`).join('')}</ul>` : '';
+  exec.innerHTML = `
+    <details>
+      <summary>📖 Come eseguire</summary>
+      <ul>${ex.esecuzione.map(e => `<li>${e}</li>`).join('')}</ul>
+      ${cuesHtml}
+    </details>
+  `;
+  body.appendChild(exec);
+
+  // Sets
+  const setsWrap = document.createElement('div');
+  setsWrap.style.marginTop = '14px';
+
+  st.sets.forEach((setData, idx) => {
+    const row = document.createElement('div');
+    row.className = 'set-row';
+    if (idx === st.sets.length - 1) row.classList.add('last');
+    if (setData.done) row.classList.add('done');
+
+    const repsLabel = ex.is_time ? 'sec' : (ex.bodyweight ? 'reps' : 'reps');
+    const weightLabel = ex.bodyweight ? (ex.elastic ? 'elastico' : '—') : 'kg';
+
+    row.innerHTML = `
+      <div class="set-num">${idx + 1}</div>
+      <div class="set-field">
+        <label>${repsLabel.toUpperCase()}</label>
+        <input type="number" inputmode="numeric" class="reps-input"
+               placeholder="" value="${setData.reps}">
+        <div class="target">${ex.reps_target}</div>
+      </div>
+      <div class="set-field">
+        <label>${weightLabel.toUpperCase()}</label>
+        <input type="number" inputmode="decimal" step="0.5" class="weight-input"
+               placeholder="" value="${setData.weight}"
+               ${ex.bodyweight && !ex.elastic ? 'disabled' : ''}>
+        <div class="target">${ex.bodyweight && !ex.elastic ? 'corpo libero' : 'default ' + (ex.weight_default || '-')}</div>
+      </div>
+      <div class="set-field">
+        <label>RPE</label>
+        <select class="rpe-select">
+          <option value="">-</option>
+          ${[6,7,8,9,10].map(n => `<option value="${n}" ${setData.rpe == n ? 'selected' : ''}>${n}</option>`).join('')}
+        </select>
+        <div class="target">1-10</div>
+      </div>
+      <button class="check-btn" title="Segna fatta">✓</button>
+    `;
+
+    row.querySelector('.reps-input').addEventListener('change', e => {
+      setData.reps = e.target.value;
+      saveState();
+    });
+    row.querySelector('.weight-input').addEventListener('change', e => {
+      setData.weight = e.target.value;
+      saveState();
+    });
+    row.querySelector('.rpe-select').addEventListener('change', e => {
+      setData.rpe = e.target.value;
+      saveState();
+    });
+    row.querySelector('.check-btn').addEventListener('click', () => {
+      setData.done = !setData.done;
+      saveState();
+      // Trigger rest timer when marking done
+      if (setData.done && idx < st.sets.length - 1) {
+        startRestTimer(ex.rest, ex.name + ' · Serie ' + (idx + 2));
+      } else if (setData.done && idx === st.sets.length - 1) {
+        // Last set done - small celebration: brief feedback
+      }
+      renderTab(currentTab);
+    });
+
+    setsWrap.appendChild(row);
+  });
+
+  body.appendChild(setsWrap);
+
+  // Meta footer with tempo + rest
+  const meta = document.createElement('div');
+  meta.className = 'sets-meta';
+  meta.innerHTML = `
+    <div class="item"><label>Tempo</label><value>${ex.tempo || '-'}</value></div>
+    <div class="item"><label>Recupero</label><value>${ex.rest}s</value></div>
+    <div class="item"><label>Target</label><value>${ex.reps_target}</value></div>
+  `;
+  body.appendChild(meta);
+
+  return card;
+}
+
+function renderChecklistItem(ex) {
+  const st = getExerciseState(ex.id);
+  const item = document.createElement('div');
+  item.className = 'check-item';
+  if (st.done) item.classList.add('done');
+
+  item.innerHTML = `
+    <div class="figure">${SVGS[ex.svg] || ''}</div>
+    <div class="info">
+      <div class="name">${ex.name}</div>
+      <div class="desc">${ex.esecuzione}</div>
+    </div>
+    <div class="target">${ex.target}</div>
+    <div class="checkmark">✓</div>
+  `;
+
+  item.addEventListener('click', () => {
+    st.done = !st.done;
+    saveState();
+    item.classList.toggle('done');
+    updateAllCounts();
+  });
+
+  return item;
+}
+
+function updateAllCounts() {
+  Object.keys(PROGRAM).forEach(key => {
+    const section = PROGRAM[key];
+    const cur = state.current[key] || {};
+    let done = 0;
+    let total = section.exercises.length;
+    if (section.type === 'workout') {
+      section.exercises.forEach(ex => {
+        const st = cur[ex.id];
+        if (st && st.sets && st.sets.every(s => s.done)) done++;
+      });
+    } else {
+      section.exercises.forEach(ex => {
+        if (cur[ex.id] && cur[ex.id].done) done++;
+      });
+    }
+    const $c = document.getElementById('cnt-' + key);
+    if ($c) {
+      $c.textContent = `${done}/${total}`;
+      const tab = document.querySelector(`.tab[data-key="${key}"]`);
+      if (tab) tab.classList.toggle('completed', done === total);
+    }
+  });
+}
+
+// ============ REST TIMER ============
+const $timerOverlay = document.getElementById('timerOverlay');
+const $timerDisplay = document.getElementById('timerDisplay');
+const $timerLabel = document.getElementById('timerLabel');
+const $timerOf = document.getElementById('timerOf');
+
+function formatTimer(s) {
+  const m = Math.floor(Math.abs(s) / 60);
+  const sec = Math.abs(s) % 60;
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start();
+    o.stop(ctx.currentTime + 0.4);
+    setTimeout(() => {
+      const o2 = ctx.createOscillator();
+      const g2 = ctx.createGain();
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.type = 'sine'; o2.frequency.value = 1100;
+      g2.gain.setValueAtTime(0.2, ctx.currentTime);
+      g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      o2.start(); o2.stop(ctx.currentTime + 0.4);
+    }, 250);
+  } catch(e) {}
+  if (navigator.vibrate) navigator.vibrate([200, 80, 200]);
+}
+
+function startRestTimer(seconds, label) {
+  restTotal = seconds;
+  restRemaining = seconds;
+  restExerciseLabel = label;
+  restPaused = false;
+  $timerLabel.textContent = 'RECUPERO';
+  $timerOf.textContent = label;
+  updateRestDisplay();
+  $timerOverlay.classList.add('show');
+  clearInterval(restTimerInterval);
+  restTimerInterval = setInterval(() => {
+    if (restPaused) return;
+    restRemaining--;
+    updateRestDisplay();
+    if (restRemaining === 0) {
+      beep();
+    }
+    if (restRemaining <= -10) {
+      stopRestTimer();
+    }
+  }, 1000);
+}
+
+function updateRestDisplay() {
+  $timerDisplay.textContent = formatTimer(restRemaining);
+  $timerDisplay.classList.toggle('warn', restRemaining > 0 && restRemaining <= 10);
+  $timerDisplay.classList.toggle('done', restRemaining <= 0);
+}
+
+function stopRestTimer() {
+  clearInterval(restTimerInterval);
+  $timerOverlay.classList.remove('show');
+}
+
+document.getElementById('btnTimerSkip').addEventListener('click', stopRestTimer);
+document.getElementById('btnTimerPause').addEventListener('click', () => {
+  restPaused = !restPaused;
+  document.getElementById('btnTimerPause').textContent = restPaused ? 'Riprendi' : 'Pausa';
+});
+document.getElementById('btnTimerAdd').addEventListener('click', () => {
+  restRemaining += 15;
+  updateRestDisplay();
+});
+$timerOverlay.addEventListener('click', (e) => {
+  if (e.target === $timerOverlay) stopRestTimer();
+});
+
+// ============ SESSION TIMER ============
+const $sessionTimer = document.getElementById('sessionTimer');
+function updateSessionTimer() {
+  if (!sessionStartTs) {
+    $sessionTimer.textContent = '00:00';
+    return;
+  }
+  const elapsed = Math.floor((Date.now() - sessionStartTs) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  $sessionTimer.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+$sessionTimer.addEventListener('click', () => {
+  if (sessionStartTs) {
+    if (confirm('Resettare il timer della seduta?')) {
+      sessionStartTs = Date.now();
+      updateSessionTimer();
+    }
+  } else {
+    sessionStartTs = Date.now();
+    sessionTimerInterval = setInterval(updateSessionTimer, 1000);
+    updateSessionTimer();
+  }
+});
+
+// auto-start when first interaction happens
+function ensureSessionTimerStarted() {
+  if (!sessionStartTs) {
+    sessionStartTs = Date.now();
+    sessionTimerInterval = setInterval(updateSessionTimer, 1000);
+    updateSessionTimer();
+  }
+}
+
+// ============ TABS ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => renderTab(tab.dataset.key));
+});
+
+// ============ ACTIONS ============
+document.getElementById('btnSave').addEventListener('click', () => {
+  const session = {
+    date: TODAY,
+    timestamp: Date.now(),
+    data: JSON.parse(JSON.stringify(state.current))
+  };
+  // compute summary
+  const summary = {};
+  Object.keys(PROGRAM).forEach(k => {
+    const section = PROGRAM[k];
+    const cur = state.current[k] || {};
+    if (section.type === 'workout') {
+      let done = 0, total = section.exercises.length;
+      section.exercises.forEach(ex => {
+        const st = cur[ex.id];
+        if (st && st.sets && st.sets.every(s => s.done)) done++;
+      });
+      if (done > 0) summary[k] = `${done}/${total}`;
+    } else {
+      let done = 0, total = section.exercises.length;
+      section.exercises.forEach(ex => { if (cur[ex.id] && cur[ex.id].done) done++; });
+      if (done > 0) summary[k] = `${done}/${total}`;
+    }
+  });
+  session.summary = summary;
+  if (Object.keys(summary).length === 0) {
+    alert('Nessun esercizio segnato come fatto. Spunta almeno una serie prima di salvare.');
+    return;
+  }
+  state.history.unshift(session);
+  // keep last 60 sessions
+  state.history = state.history.slice(0, 60);
+  saveState();
+  alert('Seduta salvata! 💪');
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!confirm('Cancellare tutti i dati di oggi? (lo storico è preservato)')) return;
+  state.current = {};
+  sessionStartTs = null;
+  if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+  updateSessionTimer();
+  saveState();
+  renderTab(currentTab);
+});
+
+// ============ HISTORY ============
+const $historyModal = document.getElementById('historyModal');
+const $historyContent = document.getElementById('historyContent');
+document.getElementById('btnHistory').addEventListener('click', () => {
+  renderHistory();
+  $historyModal.classList.add('show');
+});
+document.getElementById('btnHistoryClose').addEventListener('click', () => {
+  $historyModal.classList.remove('show');
+});
+$historyModal.addEventListener('click', e => {
+  if (e.target === $historyModal) $historyModal.classList.remove('show');
+});
+
+function renderHistory() {
+  if (!state.history.length) {
+    $historyContent.innerHTML = '<div class="history-empty">Nessuna seduta salvata. Completa la prima!</div>';
+    return;
+  }
+  $historyContent.innerHTML = state.history.map(s => {
+    const d = new Date(s.timestamp);
+    const dateStr = d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' });
+    const timeStr = d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+    const summaryLines = Object.entries(s.summary || {}).map(([k, v]) => {
+      const t = PROGRAM[k] ? PROGRAM[k].title : k;
+      return `<span style="display: inline-block; margin-right: 8px;"><b>${t}</b>: ${v}</span>`;
+    }).join('');
+    // Detail: list top exercises with reps/weight if workout
+    const details = [];
+    Object.keys(s.data).forEach(k => {
+      if (!PROGRAM[k] || PROGRAM[k].type !== 'workout') return;
+      PROGRAM[k].exercises.forEach(ex => {
+        const st = s.data[k][ex.id];
+        if (st && st.sets) {
+          const completed = st.sets.filter(x => x.done);
+          if (completed.length === 0) return;
+          const tops = completed.map(s2 => `${s2.reps||'-'}r×${s2.weight||'-'}kg`).join(', ');
+          details.push(`${ex.name}: ${tops}`);
+        }
+      });
+    });
+    return `
+      <div class="history-item">
+        <div class="date">${dateStr} · ${timeStr}</div>
+        <div class="summary">${summaryLines}</div>
+        ${details.length ? `<div class="exercises">${details.slice(0,4).join('<br>')}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ============ AUTO-START SESSION TIMER ============
+document.addEventListener('click', ensureSessionTimerStarted, { once: true, capture: true });
+
+// ============ INIT ============
+renderTab('sessionA');
+updateAllCounts();
+
+// Prevent body scroll when timer overlay is open
+const observer = new MutationObserver(() => {
+  document.body.style.overflow = $timerOverlay.classList.contains('show') ||
+                                  $historyModal.classList.contains('show') ? 'hidden' : '';
+});
+observer.observe($timerOverlay, { attributes: true });
+observer.observe($historyModal, { attributes: true });
+</script>
+
+</body>
+</html>
